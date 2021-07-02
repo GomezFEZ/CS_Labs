@@ -4,11 +4,7 @@
 
 - [x] Data Lab
 
-  对整数和浮点数进行位级操作.涉及补码,浮点数等内容.
-
-  除howManyBits,float_twice,float_i2f外均独立完成.
-
-  
+  对整数和浮点数进行位级操作.涉及补码,浮点数等内容.  
 
 - [ ] Bomb Lab
 
