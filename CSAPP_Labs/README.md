@@ -10,7 +10,7 @@
 
 - [x] Data Lab
 
-- [ ] Bomb Lab
+- [x] Bomb Lab
 
 - [ ] Attack Lab
 
