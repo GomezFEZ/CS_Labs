@@ -1044,7 +1044,7 @@ struct Tree{
 }
 ```
 
-之后推出这是一个Binary Search Tree,而fun7所做的事情是在这棵树中查找输入的数字,并在此过程值对一个累积值进行一系列操作.具体见[此回答](Introduction to CSAPP（十九）：这可能是你能找到的分析最全的Bomblab了 - Yannick的文章 - 知乎 https://zhuanlan.zhihu.com/p/104130161).
+之后推出这是一个Binary Search Tree,而fun7所做的事情是在这棵树中查找输入的数字,并在此过程值对一个累积值进行一系列操作.具体见[此回答](https://zhuanlan.zhihu.com/p/104130161).
 
 推断可得secret_phase的密码:
 
