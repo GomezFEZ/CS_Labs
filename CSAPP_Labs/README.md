@@ -12,15 +12,11 @@
 
 - [x] Bomb Lab
 
-- [ ] Attack Lab
+- [x] Attack Lab
 
 - [ ] Buffer Lab
 
-- [ ] Architecture Lab
-
 - [ ] Cache Lab
-
-- [ ] Performance Lab
 
 - [ ] Shell Lab
 
@@ -28,3 +24,6 @@
 
 - [ ] Proxy Lab
 
+- [ ] Architecture Lab\[x,暂时不看第四章\]
+
+- [ ] Performance Lab\[x,已被Cache Lab取代,见官网说明\]
