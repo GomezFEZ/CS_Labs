@@ -4,10 +4,10 @@
 
 **版本**:网络上存在很多个版本的Lab答案,内容上有一些差距,这里均为2021/7/2在[官网](http://csapp.cs.cmu.edu/3e/labs.html)上下载到的版本.
 
-**环境**:Ubuntu 20.04.2 LTS x86_64
+**环境**:Ubuntu 20.04.2 LTS x86_64  
 
-
-
+**进度**:
+  
 - [x] Data Lab
 
 - [x] Bomb Lab
