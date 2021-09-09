@@ -14,8 +14,6 @@
 
 - [x] Attack Lab
 
-- [ ] Buffer Lab
-
 - [ ] Cache Lab
 
 - [ ] Shell Lab
@@ -27,3 +25,5 @@
 - [ ] Architecture Lab\[x,暂时不看第四章\]
 
 - [ ] Performance Lab\[x,已被Cache Lab取代,见官网说明\]
+
+- [ ] Buffer Lab\[x,已被Attack Lab取代\]
