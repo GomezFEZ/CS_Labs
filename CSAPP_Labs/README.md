@@ -7,14 +7,14 @@
 **环境**:Ubuntu 20.04.2 LTS x86_64  
 
 **进度**:
-  
+
 - [x] Data Lab
 
 - [x] Bomb Lab
 
 - [x] Attack Lab
 
-- [ ] Cache Lab
+- [x] Cache Lab
 
 - [ ] Shell Lab
 
