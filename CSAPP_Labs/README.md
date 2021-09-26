@@ -16,7 +16,7 @@
 
 - [x] Cache Lab
 
-- [ ] Shell Lab
+- [x] Shell Lab
 
 - [ ] Malloc Lab
 
