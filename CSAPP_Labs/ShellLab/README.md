@@ -16,6 +16,10 @@
 
 这个Lab默认你了解fg,bg指令,理解父子进程和进程组的区别与联系,也知道键盘发送信号的方法细节,但这些内容既没有在CSAPP3e中,也没有在.tar中介绍,感觉有些不合理.(也可能是我太弱了)我去搜索这些细节相关的问题的时候居然发现提问者也正是因为这个Lab而发问.
 
+update:发现了尴尬的事实,我不留神跳过了一节课(讲了System Level IO),ShellLab是在这节课之后才放出的,难怪做起来这么不上手.以后注意参考[Schedule](http://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/schedule.html).
+
+update-update:看完了这节课,发现对于这个Lab好像没有什么帮助,更尴尬了.
+
 **工具**:
 
 用VScode打开shlab-handout文件夹,写好task.json:
