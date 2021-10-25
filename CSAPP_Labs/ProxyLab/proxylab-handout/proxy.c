@@ -62,7 +62,7 @@ void thread(void *argp)  {
 
 void doit(int fd) {
     char buf[MAXLINE], method[MAXLINE], url[MAXLINE], version[MAXLINE],
-        req_hdr[MAXLINE];
+        req_line[MAXLINE];
     rio_t rio;
     url_parsed u;
 
@@ -79,7 +79,7 @@ void doit(int fd) {
     printf("Now parse url...\n");
     parse_url(buf, &u);
     printf("Now transform url into request headers...\n");
-    uri2req_header(&rio, &u, req_hdr);
+    uri2req_header(&rio, &u, req_line);
 
     // connect to sercer
     int connfd = Open_clientfd(u.host, u.port);
@@ -87,7 +87,7 @@ void doit(int fd) {
     printf("Successfully connected to server with connfd %d\n", u.host, connfd);
     printf("Now sending request header...\n");
     Rio_readinitb(&server_rio, connfd);
-    Rio_writen(connfd, req_hdr, strlen(req_hdr));
+    Rio_writen(connfd, req_line, strlen(req_line));
 
     int total = 0, cur = 0;
     while ((cur = Rio_readlineb(&server_rio, buf, MAXLINE)) != 0) {
@@ -136,9 +136,9 @@ void parse_url(char *url_buf, url_parsed *urlp) {
 // read the rest(buf) and turn uri+buf into Request headers
 void uri2req_header(rio_t *rio, url_parsed *urlp, char *dest) {
     char buf[MAXLINE];
-    char req_hdr[MAXLINE], host_hdr[MAXLINE], other[MAXLINE];
+    char req_line[MAXLINE], host_hdr[MAXLINE], other[MAXLINE];
 
-    sprintf(req_hdr, "GET %s HTTP/1.0\r\n", urlp->path);
+    sprintf(req_line, "GET %s HTTP/1.0\r\n", urlp->path);
     while (Rio_readlineb(rio, buf, MAXLINE) > 0) {
         printf("uri2req_header read %s\n", buf);
         if (!strcmp(buf, "\r\n")) {
@@ -155,6 +155,6 @@ void uri2req_header(rio_t *rio, url_parsed *urlp, char *dest) {
 
     if (!strlen(host_hdr)) sprintf(host_hdr, "Host: %s\r\n", urlp->host);
 
-    sprintf(dest, "%s%s%s%s%s%s", req_hdr, host_hdr, con_hdr, pro_con_hdr,
+    sprintf(dest, "%s%s%s%s%s%s", req_line, host_hdr, con_hdr, pro_con_hdr,
             user_agent_hdr, other);
 }
