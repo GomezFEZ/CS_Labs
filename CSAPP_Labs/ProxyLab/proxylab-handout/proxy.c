@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "csapp.h"
 
@@ -33,8 +35,8 @@ int main(int argc, int *argv[]) {
         fprintf(stderr, "usage: %s <port>\n", argv[0]);
         exit(1);
     }
-    printf("%s", user_agent_hdr);
 
+    printf("%s", user_agent_hdr);
     listenfd = Open_listenfd(argv[1]);
     while (1) {
         clientlen = sizeof(clientaddr);
@@ -50,8 +52,8 @@ int main(int argc, int *argv[]) {
 }
 
 void doit(int fd) {
-    char buf[MAXLINE], method[MAXLINE], url[MAXLINE], version[MAXLINE], req_hdr[MAXLINE];
-    char filename[MAXLINE], cgiargs[MAXLINE];
+    char buf[MAXLINE], method[MAXLINE], url[MAXLINE], version[MAXLINE],
+        req_hdr[MAXLINE];
     rio_t rio;
     url_parsed u;
 
@@ -60,26 +62,26 @@ void doit(int fd) {
     printf("Proxy get buf %s\n", buf);
     // now buf is like GET http://www.cmu.edu/hub/index.html HTTP/1.1
     // GET - method, http://www.cmu.edu/hub/index.html - url, HTTP/1.1 - version
-    sscanf(buf, "%s%s%s", method, url, version);
+    sscanf(buf, "%s %s %s", method, url, version);
     if (strcmp(method, "GET")) {
         fprintf(stderr, "Proxy can not handle this method: %s\n", method);
         return;
     }
     printf("Now parse url...\n");
     parse_url(buf, &u);
-    // printf("Now transform url into request headers...\n");
+    printf("Now transform url into request headers...\n");
     uri2req_header(&rio, &u, req_hdr);
 
     // connect to sercer
     int connfd = Open_clientfd(u.host, u.port);
     rio_t server_rio;
-    printf("Successfully connected to server (%s:%s)\n", u.host, u.port);
+    printf("Successfully connected to server with connfd %d\n", u.host, connfd);
     printf("Now sending request header...\n");
     Rio_readinitb(&server_rio, connfd);
-    Rio_writen(connfd, &server_rio, strlen(req_hdr));
+    Rio_writen(connfd, req_hdr, strlen(req_hdr));
 
     int total = 0, cur = 0;
-    while((cur = Rio_readlineb(&server_rio, buf, MAXLINE)) != 0) {
+    while ((cur = Rio_readlineb(&server_rio, buf, MAXLINE)) != 0) {
         total += cur;
         Rio_writen(fd, buf, cur);
     }
@@ -88,22 +90,50 @@ void doit(int fd) {
     Close(connfd);
 }
 
-// get uri from like http://www.cmu.edu:8080/hub/index.html
+// get uri from like http://www.cmu.edu:8080/hub/index.html or /hub/index.html
+// for /hub/index.html, the port by default is 80(see proxylab.pdf 4.3 Port numbers)
 void parse_url(char *url_buf, url_parsed *urlp) {
     // if (strstr(url_buf, "http://") != url_buf) {
-    //     fprintf(stderr, "Invalid url %s\n", url_buf);
-    //     return;
+    //     strcpy(urlp->host, "localhost");
+    //     strcpy(urlp->path, url_buf);
+    //     strcpy(urlp->port, "3333");
+    // } else {
+    //     // http://localhost:1234/tiny/home.html
+    //     url_buf += strlen("http://");
+    //     char *cp = strstr(url_buf, ':');
+    //     *cp = '\0';
+    //     strcpy(urlp->host, url_buf);
+    //     url_buf = cp + 1;
+    //     cp = strstr(url_buf, '/');
+    //     *cp = '\0';
+    //     strcpy(urlp->port, url_buf);
+    //     *cp = '/';
+    //     strcpy(urlp->path, cp);
     // }
-    // url_buf += strlen("http://");
-    char *cp = strstr(url_buf, ':');
-    *cp = '\0';
-    strcpy(urlp->host, url_buf);
-    url_buf = cp + 1;
-    cp = strstr(url_buf, '/');
-    *cp = '\0';
-    strcpy(urlp->port, url_buf);
-    *cp = '/';
-    strcpy(urlp->path, cp);
+    char *hostpose = strstr(url_buf, "//");
+    if (hostpose == NULL) {
+        char *pathpose = strstr(url_buf, "/");
+        if (pathpose != NULL) strcpy(urlp->path, pathpose);
+        strcpy(urlp->port, "80");
+        return;
+    } else {
+        char *portpose = strstr(hostpose + 2, ":");
+        if (portpose != NULL) {
+            int tmp;
+            sscanf(portpose + 1, "%d%s", &tmp, urlp->path);
+            sprintf(urlp->port, "%d", tmp);
+            *portpose = '\0';
+
+        } else {
+            char *pathpose = strstr(hostpose + 2, "/");
+            if (pathpose != NULL) {
+                strcpy(urlp->path, pathpose);
+                strcpy(urlp->port, "80");
+                *pathpose = '\0';
+            }
+        }
+        strcpy(urlp->host, hostpose + 2);
+    }
 }
 
 // read the rest(buf) and turn uri+buf into Request headers
@@ -112,7 +142,8 @@ void uri2req_header(rio_t *rio, url_parsed *urlp, char *dest) {
     char req_hdr[MAXLINE], host_hdr[MAXLINE], other[MAXLINE];
 
     sprintf(req_hdr, "GET %s HTTP/1.0\r\n", urlp->path);
-    while (Rio_readlineb(rio, buf, MAXLINE) > 0)
+    while (Rio_readlineb(rio, buf, MAXLINE) > 0) {
+        printf("uri2req_header read %s\n", buf);
         if (!strcmp(buf, "\r\n")) {
             strcat(other, "\r\n");
             break;
@@ -123,6 +154,7 @@ void uri2req_header(rio_t *rio, url_parsed *urlp, char *dest) {
                  !strncasecmp(buf, "User-agent:", 11)) {
             strcat(other, buf);
         }
+    }
 
     if (!strlen(host_hdr)) sprintf(host_hdr, "Host: %s\r\n", urlp->host);
 
