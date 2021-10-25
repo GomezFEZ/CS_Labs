@@ -24,6 +24,7 @@ typedef struct url_parsed {
 void doit(int fd);
 void parse_url(char *url_buf, url_parsed *urlp);
 void uri2req_header(rio_t *rio, url_parsed *urlp, char *dest);
+void thread(void *argp);
 
 int main(int argc, int *argv[]) {
     int listenfd, connfd;
@@ -44,11 +45,19 @@ int main(int argc, int *argv[]) {
         Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port,
                     MAXLINE, 0);
         printf("Proxy accepted connection from (%s, %s)\n", hostname, port);
-        doit(connfd);
-        Close(connfd);
+
+        pthread_t tid;
+        Pthread_create(&tid, NULL, thread, (void*)&connfd);
     }
 
     return 0;
+}
+
+void thread(void *argp)  {
+    int fd = *(int*)argp;
+    Pthread_detach(Pthread_self());
+    doit(fd);
+    Close(fd);
 }
 
 void doit(int fd) {
@@ -148,5 +157,4 @@ void uri2req_header(rio_t *rio, url_parsed *urlp, char *dest) {
 
     sprintf(dest, "%s%s%s%s%s%s", req_hdr, host_hdr, con_hdr, pro_con_hdr,
             user_agent_hdr, other);
-    return;
 }
