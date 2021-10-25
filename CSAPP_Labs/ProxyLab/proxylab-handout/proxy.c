@@ -90,49 +90,37 @@ void doit(int fd) {
     Close(connfd);
 }
 
-// get uri from like http://www.cmu.edu:8080/hub/index.html or /hub/index.html
-// for /hub/index.html, the port by default is 80(see proxylab.pdf 4.3 Port numbers)
+// get uri from like http://www.cmu.edu:8080/hub/index.html
+// or /hub/index.html
+// or http://www.cmu.edu/hub/index.html
+// the port by default is 80(see proxylab.pdf 4.3 Port numbers)
+// and the host is supposed to be sent by client, if not included in url(case 2)
+// processed in function uri2req_headers
 void parse_url(char *url_buf, url_parsed *urlp) {
-    // if (strstr(url_buf, "http://") != url_buf) {
-    //     strcpy(urlp->host, "localhost");
-    //     strcpy(urlp->path, url_buf);
-    //     strcpy(urlp->port, "3333");
-    // } else {
-    //     // http://localhost:1234/tiny/home.html
-    //     url_buf += strlen("http://");
-    //     char *cp = strstr(url_buf, ':');
-    //     *cp = '\0';
-    //     strcpy(urlp->host, url_buf);
-    //     url_buf = cp + 1;
-    //     cp = strstr(url_buf, '/');
-    //     *cp = '\0';
-    //     strcpy(urlp->port, url_buf);
-    //     *cp = '/';
-    //     strcpy(urlp->path, cp);
-    // }
-    char *hostpose = strstr(url_buf, "//");
-    if (hostpose == NULL) {
-        char *pathpose = strstr(url_buf, "/");
-        if (pathpose != NULL) strcpy(urlp->path, pathpose);
+    char *hd = strstr(url_buf, "//");
+    if (hd == NULL) {
+        // /hub/index.html
+        char *hd = strstr(url_buf, "/");
+        strcpy(urlp->path, hd);
         strcpy(urlp->port, "80");
-        return;
     } else {
-        char *portpose = strstr(hostpose + 2, ":");
-        if (portpose != NULL) {
+        char *port_pos = strstr(hd + 2, ":");
+        if (port_pos != NULL) {
+            // http://www.cmu.edu:8080/hub/index.html
             int tmp;
-            sscanf(portpose + 1, "%d%s", &tmp, urlp->path);
+            sscanf(port_pos + 1, "%d%s", &tmp, urlp->path);
             sprintf(urlp->port, "%d", tmp);
-            *portpose = '\0';
-
+            *port_pos = '\0';
         } else {
-            char *pathpose = strstr(hostpose + 2, "/");
-            if (pathpose != NULL) {
-                strcpy(urlp->path, pathpose);
+            // http://www.cmu.edu/hub/index.html
+            char *hd = strstr(hd + 2, "/");
+            if (hd != NULL) {
+                strcpy(urlp->path, hd);
                 strcpy(urlp->port, "80");
-                *pathpose = '\0';
+                *hd = '\0';
             }
         }
-        strcpy(urlp->host, hostpose + 2);
+        strcpy(urlp->host, hd + 2);
     }
 }
 
