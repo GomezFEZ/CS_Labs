@@ -26,7 +26,7 @@ Proxy意为代理,要求写一个proxy,接收来自客户端的连接请求,转�
 >
 > method URI version
 >
-> ---<<CSAPP3e>>
+> ---\<\<CSAPP3e\>\>
 
 本Lab只要求解析method为GET的请求.因为我分不清楚URI和URL,下文统称URL.
 
