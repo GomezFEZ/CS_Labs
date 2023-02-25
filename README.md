@@ -20,10 +20,8 @@
 
 - [ ] Malloc Lab
 
-- [ ] Proxy Lab
+- [x] Proxy Lab
 
-- [ ] Architecture Lab\[x,暂时不看第四章\]
+- [ ] Architecture Lab\[不看第四章,跳过\]
 
-- [ ] Performance Lab\[x,已被Cache Lab取代,见官网说明\]
-
-- [ ] Buffer Lab\[x,已被Attack Lab取代\]
+Performance Lab和Buffer Lab已分别被Cache Lab和Attack Lab取代.

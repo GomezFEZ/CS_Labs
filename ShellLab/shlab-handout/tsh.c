@@ -171,7 +171,7 @@ void eval(char *cmdline) {
 
     if (argv[0] == NULL) return;
     if (!builtin_cmd(argv_ptr)) {
-        // block SIGCHILD
+        // block SIGCHILD, in case a child ends and competes on jobs
         sigaddset(&mask, SIGCHLD);
         sigprocmask(SIG_BLOCK, &mask, &prev);
         if ((pid = fork()) == 0) {
@@ -190,7 +190,7 @@ void eval(char *cmdline) {
         sigprocmask(SIG_SETMASK, &prev, NULL);  // parent unblock SIGCHILD
         if (!bg) {
             // foreground
-            waitfg(pid);
+            waitfg(pid);    // the shell blocks here
         } else {
             // background
             printf("[%d] (%d) %s", getjobpid(jobs, pid)->jid, pid, cmdline);
@@ -302,7 +302,7 @@ void do_bgfg(char **argv) {
 
     sigset_t mask, prev;
     sigfillset(&mask);
-    sigprocmask(SIG_BLOCK, &mask, &prev);
+    sigprocmask(SIG_BLOCK, &mask, &prev);   // block all signals
     // 2.fg or bg?
     if (!strcmp(argv[0], "fg"))
         j->state = FG;
@@ -311,7 +311,7 @@ void do_bgfg(char **argv) {
     sigprocmask(SIG_SETMASK, &prev, NULL);
 
     pid = j->pid;
-    kill(-pid, SIGCONT);
+    kill(-pid, SIGCONT);    // fg&bg both resume jobs that has been suspended
     // bg and fg are unique among other builtin commands
     if (!strcmp(argv[0], "fg"))
         waitfg(pid);
@@ -346,12 +346,12 @@ void sigchld_handler(int sig) {
 
     while ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0) {
         sigprocmask(SIG_BLOCK, &mask_all, &prev_all);
-        if (WIFSTOPPED(status)) {
+        if (WIFSTOPPED(status)) {   // child stopped
             struct job_t *j = getjobpid(jobs, pid);
             j->state = ST;
             printf("Job [%d] (%d) stopped by signal %d\n", j->jid, pid,
                    WSTOPSIG(status));
-        } else {
+        } else {    // child terminated
             deletejob(jobs, pid);
             if (WIFSIGNALED(status))
                 printf("Job [%d] (%d) terminated by signal %d\n", pid2jid(pid),
@@ -369,7 +369,7 @@ void sigchld_handler(int sig) {
  */
 void sigint_handler(int sig) {
     int old_errno = errno;
-    pid_t pid = fgpid(jobs);
+    pid_t pid = fgpid(jobs);    // send to foreground job
     if (pid) kill(-pid, sig);
     errno = old_errno;
 }
@@ -381,7 +381,7 @@ void sigint_handler(int sig) {
  */
 void sigtstp_handler(int sig) {
     int old_errno = errno;
-    pid_t pid = fgpid(jobs);
+    pid_t pid = fgpid(jobs);    // send to foreground job
     if (pid) kill(-pid, sig);
     errno = old_errno;
 }
