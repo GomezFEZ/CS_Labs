@@ -22,6 +22,6 @@
 
 - [x] Proxy Lab
 
-- [ ] Architecture Lab(不看第四章,跳过)
+- [ ] Architecture Lab(略读第四章,跳过)
 
 Performance Lab和Buffer Lab已分别被Cache Lab和Attack Lab取代.
